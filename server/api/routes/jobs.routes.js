@@ -11,10 +11,5 @@ jobRoutes.get("/:id", getJobById);
 jobRoutes.post("/", [isAuth], createJob);
 jobRoutes.put("/add-user", [isAuth], addUserToJob);
 jobRoutes.put("/delete-user-job", [isAuth], deleteUserFromJob);
-// jobRoutes.get("/name/:name", findjobByName);
-// jobRoutes.put("/modify/:id", editNamejob);
-
-// employersRoutes.post("/", createEmployer);
-
 
 export { jobRoutes }

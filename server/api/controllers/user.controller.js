@@ -18,26 +18,22 @@ const getAllUsers = async (req, res, next) => {
 const registerUser = async (req, res, next) => {
 
   try {
-    const { body } = req;
+    const { image, name, password } = req.body;
 
-    const previousUser = await User.findOne({ email: body.email });
+    const previousUser = await User.findOne({ name });
 
     if (previousUser) {
       const error = new Error('The user is already registered!');
       return next(error);
     }
 
-    // Encriptar password
-    const pwdHash = await bcrypt.hash(body.password, 10);
+    const pwdHash = await bcrypt.hash(password, 10);
 
     // Crear usuario en DB
     const newUser = new User({
-      name: body.name,
-      surname: body.surname,
-      email: body.email,
+      name,
       password: pwdHash,
-      account_type: body.account_type,
-      applied_jobs: []
+      image
     });
 
     const savedUser = await newUser.save();
@@ -59,18 +55,18 @@ const registerUser = async (req, res, next) => {
 const loginUser = async (req, res, next) => {
 
   try {
-    const { body } = req;
+    const { name, password } = req.body;
 
     // Comprobar email
-    const user = await User.findOne({ email: body.email });
+    const user = await User.findOne({ name });
 
     // Comprobar password
-    const isValidPassword = await bcrypt.compare(body.password, user?.password ?? '');
+    const isValidPassword = await bcrypt.compare(password, user?.password ?? '');
     // Control de LOGIN
     if (!user || !isValidPassword) {
       const error = {
         status: 401,
-        message: 'The email & password combination is incorrect!'
+        message: 'The name & password combination is incorrect!'
       };
       return next(error);
     }
@@ -79,24 +75,19 @@ const loginUser = async (req, res, next) => {
     const token = jwt.sign(
       {
         id: user._id,
-        email: user.email,
-        rol: user.account_type
+        name: user.name,
       },
-      req.app.get("secretKey"),
-      { expiresIn: "3h" }
+      req.app.get("secretKey")
     );
 
     return res.json({
       status: 200,
       message: httpStatusCode[200],
       data: {
-        user: user._id,
-        email: user.email,
+        id: user._id,
+        name: user.name,
         token: token,
-        rol: user.account_type
-
       },
-
     });
 
   } catch (error) {
