@@ -16,6 +16,8 @@ connection();
 const PORT = process.env.PORT;
 const router = express.Router();
 const server = express();
+server.use(express.json({limit: "10mb", extended: true}))
+server.use(express.urlencoded({limit: "10mb", extended: true, parameterLimit: 50000}))
 
 server.set("secretKey", "nodeRestApi");
 
