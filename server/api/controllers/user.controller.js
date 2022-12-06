@@ -38,12 +38,21 @@ const registerUser = async (req, res, next) => {
 
     const savedUser = await newUser.save();
 
-    return res.status(201).json({
+    const token = jwt.sign(
+      {
+        id: savedUser._id,
+        name: savedUser.name,
+      },
+      req.app.get("secretKey")
+    );
+
+    return res.json({
       status: 201,
       message: httpStatusCode[201],
       data: {
-        id: savedUser._id
-      }
+        id: savedUser._id,
+        token: token,
+      },
     });
 
   } catch (error) {
@@ -114,7 +123,9 @@ const logoutUser = async (req, res, next) => {
 //----------------------GET USER BY ID
 const getUserById = async (req, res, next) => {
 
-  const { id } = req.params;
+  const { id } = req.authority;
+
+  // const { id } = req.params;
   try {
 
     const userbyid = await User.findById(id)
