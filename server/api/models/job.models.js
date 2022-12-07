@@ -11,7 +11,6 @@ const JobSchema = new Schema(
         description: { type: String, required: true },
         location: { type: String, required: false },
         requiremets: { type: String, required: true },
-
     },
     {
         timestamps: true
