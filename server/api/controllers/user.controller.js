@@ -34,11 +34,59 @@ const getAllUsersSantas = async (req, res, next) => {
   }
 };
 
-//--------------REGISTER USER
-const registerUser = async (req, res, next) => {
+//--------------REGISTER CHANGE USER
+const registerChangeUser = async (req, res, next) => {
 
   try {
     const { image, name, password } = req.body;
+
+    const previousUser = await User.findOne({ name });
+
+    if (!previousUser) {
+      const error = new Error('This user is not registered to play');
+      return next(error);
+    } else if (previousUser.registered) {
+      const error = new Error('The user is already registered!');
+      return next(error);
+    }
+
+    const pwdHash = await bcrypt.hash(password, 10);
+
+    const updatedUser = await User.findByIdAndUpdate(previousUser._id, { $set: { registered: true, password: pwdHash, image } })
+
+    const token = jwt.sign(
+      {
+        id: previousUser._id,
+        name: previousUser.name,
+      },
+      req.app.get("secretKey")
+    );
+
+    return res.json({
+      status: 201,
+      message: httpStatusCode[201],
+      data: {
+        id: updatedUser,
+        token: token,
+      },
+    });
+
+  } catch (error) {
+    return next(error);
+  }
+};
+//--------------Admin register USER
+const registerUser = async (req, res, next) => {
+
+  const { image, name, password } = req.body;
+  try {
+    if (req.authority.name !== 'Diego Alejandro') {
+      const error = {
+        status: 401,
+        message: 'Not authorized'
+      };
+      return next(error);
+    }
 
     const previousUser = await User.findOne({ name });
 
@@ -367,4 +415,4 @@ const deleteUser = async (req, res, next) => {
   }
 };
 
-export { getUserJobs, getAllUsersSantas, createSecretSanta, registerUser, getAllUsers, loginUser, logoutUser, getUserById, editUser, addNewContact, getUserContacts, deleteContact, deleteUser, getRecruiterJobs };
+export { getUserJobs, getAllUsersSantas, createSecretSanta, registerUser, getAllUsers, loginUser, logoutUser, getUserById, editUser, addNewContact, getUserContacts, deleteContact, deleteUser, getRecruiterJobs, registerChangeUser };
