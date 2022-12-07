@@ -9,6 +9,24 @@ const getAllUsers = async (req, res, next) => {
 
   try {
     const users = await User.find()
+      .select({ name: 1, hasSanta: 1, _id: 0, secretSanta: 1 })
+    return res.status(200).json(users);
+  } catch (error) {
+    return next(error)
+  }
+};
+
+const getAllUsersSantas = async (req, res, next) => {
+
+  const { name } = req.authority;
+  try {
+    if (name !== 'Diego Alejandro') {
+      return res.json({
+        status: 401,
+        message: httpStatusCode[401],
+      });
+    }
+    const users = await User.find()
       .select({ name: 1, hasSanta: 1, _id: 0, secretSanta: 1 }).populate('secretSanta', 'name')
     return res.status(200).json(users);
   } catch (error) {
@@ -129,7 +147,7 @@ const getUserById = async (req, res, next) => {
 
   try {
 
-    const userbyid = await User.findById(id)
+    const userbyid = await User.findById(id).populate('secretSanta', 'name')
       .select({ password: 0 });
     return res.status(200).json(userbyid);
 
@@ -349,4 +367,4 @@ const deleteUser = async (req, res, next) => {
   }
 };
 
-export { getUserJobs, createSecretSanta, registerUser, getAllUsers, loginUser, logoutUser, getUserById, editUser, addNewContact, getUserContacts, deleteContact, deleteUser, getRecruiterJobs };
+export { getUserJobs, getAllUsersSantas, createSecretSanta, registerUser, getAllUsers, loginUser, logoutUser, getUserById, editUser, addNewContact, getUserContacts, deleteContact, deleteUser, getRecruiterJobs };
