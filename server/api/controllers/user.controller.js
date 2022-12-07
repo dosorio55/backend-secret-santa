@@ -9,7 +9,7 @@ const getAllUsers = async (req, res, next) => {
 
   try {
     const users = await User.find()
-      .select({ name: 1, hasSanta: 1, _id: 0, secretSanta: 1 })
+      .select({ name: 1, hasSanta: 1, _id: 0, secretSanta: 1, image: 1 })
     return res.status(200).json(users);
   } catch (error) {
     return next(error)
