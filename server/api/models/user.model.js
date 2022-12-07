@@ -7,7 +7,8 @@ const userSchema = new Schema(
     password: { type: String, required: true },
     image: { type: String, required: true },
     secretSanta: { type: mongoose.Types.ObjectId, ref: 'User', required: false },
-    hasSanta: { type: Boolean, default: false }
+    hasSanta: { type: Boolean, default: false },
+    registered: { type: Boolean, default: false }
   },
   {
     timestamps: true,

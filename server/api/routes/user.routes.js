@@ -1,6 +1,6 @@
 import express from 'express';
 import { isAuth } from '../../authentication/jwt.js';
-import { registerUser, loginUser, logoutUser, getUserById, getAllUsers, editUser, addNewContact, getUserContacts, deleteContact, deleteUser, getRecruiterJobs, getUserJobs, createSecretSanta, getAllUsersSantas } from '../controllers/user.controller.js';
+import { registerUser, loginUser, logoutUser, getUserById, getAllUsers, editUser, addNewContact, getUserContacts, deleteContact, deleteUser, getRecruiterJobs, getUserJobs, createSecretSanta, getAllUsersSantas, registerChangeUser } from '../controllers/user.controller.js';
 
 // import { upload, uploadToCloudinary } from '../../middlewares/file.middleware.js'; */
 
@@ -14,7 +14,8 @@ userRoutes.get('/', getAllUsers);
 userRoutes.get("/userById", [isAuth], getUserById);
 userRoutes.get("/auth/santaInfo", [isAuth], getAllUsersSantas);
 userRoutes.post('/getSanta', [isAuth], createSecretSanta)
-userRoutes.post('/', registerUser);
+userRoutes.post('/', [isAuth], registerUser);
+userRoutes.post('/register', registerChangeUser);
 userRoutes.post('/login', loginUser);
 userRoutes.post('/logout', logoutUser);
 
