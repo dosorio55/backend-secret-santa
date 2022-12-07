@@ -2,12 +2,14 @@ import { User } from "../models/user.model.js";
 import bcrypt from 'bcrypt';
 import jwt from "jsonwebtoken";
 import { httpStatusCode } from "../../utils/seeds/httpStatusCode.js"
+import { notSantasCheck } from "../../utils/notAllowedSantas.js";
 
 
 const getAllUsers = async (req, res, next) => {
 
   try {
-    const users = await User.find().populate('contacts', 'name');
+    const users = await User.find()
+      .select({ name: 1, hasSanta: 1, _id: 0, secretSanta: 1 }).populate('secretSanta', 'name')
     return res.status(200).json(users);
   } catch (error) {
     return next(error)
@@ -125,7 +127,6 @@ const getUserById = async (req, res, next) => {
 
   const { id } = req.authority;
 
-  // const { id } = req.params;
   try {
 
     const userbyid = await User.findById(id)
@@ -136,6 +137,45 @@ const getUserById = async (req, res, next) => {
     return next(error)
   }
 };
+
+const createSecretSanta = async (req, res, next) => {
+
+  const { id: userId } = req.authority; 0
+
+  try {
+    const userHasSanta = await User.findById(userId).select({ name: 1, secretSanta: 1 })
+
+    if (userHasSanta.secretSanta) {
+      return res.json({
+        status: 409,
+        message: 'Tu ya tienes un santa!',
+      });
+    }
+    const users = await User.find().select({ name: 1, hasSanta: 1 })
+
+    const notSantaUsers = users.filter((user) => !user.hasSanta && userHasSanta.name !== user.name)
+    const getRandomNumber = (max) => Math.floor(Math.random() * max);
+
+    let myRandomSanta;
+    let santaCheck;
+    while (!santaCheck) {
+      myRandomSanta = notSantaUsers[getRandomNumber(notSantaUsers.length)]
+      santaCheck = notSantasCheck(userHasSanta.name, myRandomSanta.name)
+    }
+
+    await User.findByIdAndUpdate(myRandomSanta._id, { $set: { hasSanta: true } })
+    await User.findByIdAndUpdate(userId, { $set: { secretSanta: myRandomSanta._id } })
+
+    return res.json({
+      status: 200,
+      message: httpStatusCode[200],
+      data: myRandomSanta,
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
 //----------------------GET USER CONTACTS
 
 const getUserContacts = async (req, res, next) => {
@@ -165,13 +205,9 @@ const getUserContacts = async (req, res, next) => {
     });
 
   } catch (error) {
-
     return next(error)
-
   }
-
 };
-
 
 const getRecruiterJobs = async (req, res, next) => {
 
@@ -313,4 +349,4 @@ const deleteUser = async (req, res, next) => {
   }
 };
 
-export { getUserJobs, registerUser, getAllUsers, loginUser, logoutUser, getUserById, editUser, addNewContact, getUserContacts, deleteContact, deleteUser, getRecruiterJobs };
+export { getUserJobs, createSecretSanta, registerUser, getAllUsers, loginUser, logoutUser, getUserById, editUser, addNewContact, getUserContacts, deleteContact, deleteUser, getRecruiterJobs };
