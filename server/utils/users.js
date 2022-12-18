@@ -25,5 +25,13 @@ export const usersBlocked = [
         name: 'Fernando Aguirre',
         notAllowed: 'Dasha Kustova',
     },
+    {
+        name: 'Mariana Mabel',
+        notAllowed: '',
+    },
+    {
+        name: 'Hugo Mika',
+        notAllowed: '',
+    },
 
 ]
