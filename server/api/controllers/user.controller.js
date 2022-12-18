@@ -240,6 +240,8 @@ const createSecretSanta = async (req, res, next) => {
       }
     }
 
+    
+
     await User.findByIdAndUpdate(myRandomSanta._id, { $set: { hasSanta: true } })
     await User.findByIdAndUpdate(userId, { $set: { secretSanta: myRandomSanta._id } })
 
