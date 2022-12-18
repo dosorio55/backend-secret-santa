@@ -225,11 +225,14 @@ const createSecretSanta = async (req, res, next) => {
 
     let myRandomSanta;
     let santaCheck;
+    if (notSantaUsers.length === 2) {
+      myRandomSanta = notSantaUsers.find(user => userServerName.notAllowed !== user.name);
+      santaCheck = true
+    }
+
     while (!santaCheck) {
       myRandomSanta = notSantaUsers[getRandomNumber(notSantaUsers.length)]
       santaCheck = myRandomSanta.name !== userServerName.notAllowed
-      debugger
-      //Mariana != 
       if (userServerName.name === 'Dasha Kustova' && santaCheck) {
         santaCheck = myRandomSanta.name !== userServerName.notAllowed2
       } else if (userServerName.name === 'Dasha Kustova' && santaCheck) {
