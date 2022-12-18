@@ -2,7 +2,7 @@ import { User } from "../models/user.model.js";
 import bcrypt from 'bcrypt';
 import jwt from "jsonwebtoken";
 import { httpStatusCode } from "../../utils/seeds/httpStatusCode.js"
-import { notSantasCheck } from "../../utils/notAllowedSantas.js";
+import { usersBlocked } from "../../utils/users.js";
 
 
 const getAllUsers = async (req, res, next) => {
@@ -206,7 +206,7 @@ const getUserById = async (req, res, next) => {
 
 const createSecretSanta = async (req, res, next) => {
 
-  const { id: userId } = req.authority; 0
+  const { id: userId } = req.authority;
 
   try {
     const userHasSanta = await User.findById(userId).select({ name: 1, secretSanta: 1 })
@@ -219,14 +219,22 @@ const createSecretSanta = async (req, res, next) => {
     }
     const users = await User.find().select({ name: 1, hasSanta: 1 })
 
-    const notSantaUsers = users.filter((user) => !user.hasSanta && userHasSanta.name !== user.name)
+    const notSantaUsers = users.filter((user) => !user.hasSanta && userHasSanta.name !== user.name);
+    const userServerName = usersBlocked.find(user => userHasSanta.name === user.name)
     const getRandomNumber = (max) => Math.floor(Math.random() * max);
 
     let myRandomSanta;
     let santaCheck;
     while (!santaCheck) {
       myRandomSanta = notSantaUsers[getRandomNumber(notSantaUsers.length)]
-      santaCheck = notSantasCheck(userHasSanta.name, myRandomSanta.name)
+      santaCheck = myRandomSanta.name !== userServerName.notAllowed
+      debugger
+      //Mariana != 
+      if (userServerName.name === 'Dasha Kustova' && santaCheck) {
+        santaCheck = myRandomSanta.name !== userServerName.notAllowed2
+      } else if (userServerName.name === 'Dasha Kustova' && santaCheck) {
+        santaCheck = myRandomSanta.name !== userServerName.notAllowed3
+      }
     }
 
     await User.findByIdAndUpdate(myRandomSanta._id, { $set: { hasSanta: true } })
